@@ -93,7 +93,10 @@ int main(int argc,char **argv)
 
     if(dist_max <= battery/2 && dist_max != 0){//if no way to clean all floor and return to R, or there's no need to do anything, don't do it.
         while(visited_num!=row*column){
-            vector <pair<int,int> > Path;
+            vector <pair<int,int> > Path, Path2;
+            int end_row2 = end_row;
+            int end_column2 = end_column;
+            int dist_max2 = dist_max;
             int B = battery/2;
             Path.push_back(make_pair(end_row, end_column));
             visited[end_row][end_column] = true;
@@ -177,12 +180,96 @@ int main(int argc,char **argv)
                 }
             }
 
+            end_row = end_row2;
+            end_column = end_column2;
+            dist_max = dist_max2;
+            B = battery/2;
+
+            while(B>0){
+                if(end_row==start_row&&end_column==start_column) break;//at start point
+                if(B==dist_max){//need to hurry back to start point
+                    if(end_row!=row-1&&Dist[end_row+1][end_column]==dist_max-1&&visited[end_row+1][end_column]!=true){
+                        visited[end_row+1][end_column] = true;
+                        visited_num += 1;
+                        end_row = end_row + 1;
+                    }else if(end_row!=0&&Dist[end_row-1][end_column]==dist_max-1&&visited[end_row-1][end_column]!=true){
+                        visited[end_row-1][end_column] = true;
+                        visited_num += 1;
+                        end_row = end_row - 1;
+                    }else if(end_column!=column-1&&Dist[end_row][end_column+1]==dist_max-1&&visited[end_row][end_column+1]!=true){
+                        visited[end_row][end_column+1] = true;
+                        visited_num += 1;
+                        end_column = end_column + 1;
+                    }else if(end_column!=0&&Dist[end_row][end_column-1]==dist_max-1&&visited[end_row][end_column-1]!=true){
+                        visited[end_row][end_column-1] = true;
+                        visited_num += 1;
+                        end_column = end_column - 1;
+                    }else if(end_row!=row-1&&Dist[end_row+1][end_column]==dist_max-1){
+                        end_row = end_row + 1;
+                    }else if(end_row!=0&&Dist[end_row-1][end_column]==dist_max-1){
+                        end_row = end_row - 1;
+                    }else if(end_column!=column-1&&Dist[end_row][end_column+1]==dist_max-1){
+                        end_column = end_column + 1;
+                    }else if(end_column!=0&&Dist[end_row][end_column-1]==dist_max-1){
+                        end_column = end_column - 1;
+                    }
+                    B = B - 1;
+                    dist_max = dist_max - 1;
+                    Path2.push_back(make_pair(end_row, end_column));
+                }else{//take times to move 1.not yet visited and farther 2.not yet visited 3.closer to the start point
+                    if(end_row!=row-1&&visited[end_row+1][end_column]==false&&Dist[end_row+1][end_column]<=B-1&&Dist[end_row+1][end_column]>Dist[end_row][end_column]){
+                            visited[end_row+1][end_column] = true;
+                            visited_num += 1;
+                            end_row = end_row + 1;
+                    }else if(end_row!=0&&visited[end_row-1][end_column]==false&&Dist[end_row-1][end_column]<=B-1&&Dist[end_row-1][end_column]>Dist[end_row][end_column]){
+                            visited[end_row-1][end_column] = true;
+                            visited_num += 1;
+                            end_row = end_row - 1;
+                    }else if(end_column!=column-1&&visited[end_row][end_column+1]==false&&Dist[end_row][end_column+1]<=B-1&&Dist[end_row][end_column+1]>Dist[end_row][end_column]){
+                            visited[end_row][end_column+1] = true;
+                            visited_num += 1;
+                            end_column = end_column + 1;
+                    }else if(end_column!=0&&visited[end_row][end_column-1]==false&&Dist[end_row][end_column-1]<=B-1&&Dist[end_row][end_column-1]>Dist[end_row][end_column]){
+                            visited[end_row][end_column-1] = true;
+                            visited_num += 1;
+                            end_column = end_column - 1;
+                    }else if(end_row!=row-1&&visited[end_row+1][end_column]==false&&Dist[end_row+1][end_column]<=B-1){
+                            visited[end_row+1][end_column] = true;
+                            visited_num += 1;
+                            end_row = end_row + 1;
+                    }else if(end_row!=0&&visited[end_row-1][end_column]==false&&Dist[end_row-1][end_column]<=B-1){
+                            visited[end_row-1][end_column] = true;
+                            visited_num += 1;
+                            end_row = end_row - 1;
+                    }else if(end_column!=column-1&&visited[end_row][end_column+1]==false&&Dist[end_row][end_column+1]<=B-1){
+                            visited[end_row][end_column+1] = true;
+                            visited_num += 1;
+                            end_column = end_column + 1;
+                    }else if(end_column!=0&&visited[end_row][end_column-1]==false&&Dist[end_row][end_column-1]<=B-1){
+                            visited[end_row][end_column-1] = true;
+                            visited_num += 1;
+                            end_column = end_column - 1;
+                    }else if(end_row!=row-1&&Dist[end_row+1][end_column] == Dist[end_row][end_column]-1){
+                        end_row = end_row + 1;
+                    }else if(end_row!=0&&Dist[end_row-1][end_column] == Dist[end_row][end_column]-1){
+                        end_row = end_row - 1;
+                    }else if(end_column!=column-1&&Dist[end_row][end_column+1] == Dist[end_row][end_column]-1){
+                        end_column = end_column + 1;
+                    }else if(end_column!=0&&Dist[end_row][end_column-1] == Dist[end_row][end_column]-1){
+                        end_column = end_column - 1;
+                    }
+                    B = B - 1;
+                    dist_max = Dist[end_row][end_column];
+                    Path2.push_back(make_pair(end_row, end_column));
+                }
+            }
+
             vector<pair<int, int> >::iterator it;
             for(it=Path.end()-1;it!=Path.begin();){
                 --it;
                 AnsPath.push_back(make_pair(it->first,it->second));
             }
-            for(it=Path.begin()+1;it!=Path.end();it++){
+            for(it=Path2.begin()+1;it!=Path2.end();it++){
                 AnsPath.push_back(make_pair(it->first,it->second));
             }
 
