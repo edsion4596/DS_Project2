@@ -3,12 +3,19 @@
 
 using namespace std;
 
-int main()
+int main(int argc,char **argv)
 {
+    string folder;
+    folder = folder + argv[1] + "/floor.data";
+
+    ifstream fin;
+    fin.open(folder);
+    if(!fin.is_open()) return -1;
+
     int row, column, battery;
     int i, j, k;
     int start_row, start_column;
-    cin>>row>>column>>battery;
+    fin>>row>>column>>battery;
     bool visited[row][column];
     int visited_num = 0;
     char Map[row][column];
@@ -21,12 +28,9 @@ int main()
         }
     }
 
-
-
-
     for(i=0;i<row;i++){//creating map
         for(j=0;j<column;j++){
-            cin>>Map[i][j];
+            fin>>Map[i][j];
             if(Map[i][j]=='R'){
                 visited[i][j] = true;
                 visited_num += 1;
@@ -38,10 +42,11 @@ int main()
             }
         }
     }
+    fin.close();
 
     Dist[start_row][start_column] = 0;
     bool dist_done = false;
-    for(k=0;k<=(row*column/2)+max(row,column);k++){
+    for(k=0;k<=(row*column/2)+max(row,column);k++){//setting distance from start point
         dist_done = true;
         for(i=0;i<row;i++){
             for(j=0;j<column;j++){
@@ -72,17 +77,11 @@ int main()
         if(dist_done==true) break;
     }
 
-    for(i=0;i<row;i++){
-        for(j=0;j<row;j++){
-            cout<<Dist[i][j]<<' ';
-        }
-        cout<<endl;
-    }
-
     int dist_max = 0;
     int end_row, end_column;
     vector<pair<int, int> > AnsPath;
-    for(i=0;i<row;i++){
+
+    for(i=0;i<row;i++){//find first end point
         for(j=0;j<column;j++){
             if(Dist[i][j]>dist_max){
                 dist_max = Dist[i][j];
@@ -100,8 +99,8 @@ int main()
             visited[end_row][end_column] = true;
             visited_num += 1;
             while(B>0){
-                if(end_row==start_row&&end_column==start_column) break;
-                if(B==dist_max){
+                if(end_row==start_row&&end_column==start_column) break;//at start point
+                if(B==dist_max){//need to hurry back to start point
                     if(end_row!=row-1&&Dist[end_row+1][end_column]==dist_max-1&&visited[end_row+1][end_column]!=true){
                         visited[end_row+1][end_column] = true;
                         visited_num += 1;
@@ -130,7 +129,7 @@ int main()
                     B = B - 1;
                     dist_max = dist_max - 1;
                     Path.push_back(make_pair(end_row, end_column));
-                }else{
+                }else{//take times to move 1.not yet visited and farther 2.not yet visited 3.closer to the start point
                     if(end_row!=row-1&&visited[end_row+1][end_column]==false&&Dist[end_row+1][end_column]<=B-1&&Dist[end_row+1][end_column]>Dist[end_row][end_column]){
                             visited[end_row+1][end_column] = true;
                             visited_num += 1;
@@ -155,7 +154,7 @@ int main()
                             visited[end_row-1][end_column] = true;
                             visited_num += 1;
                             end_row = end_row - 1;
-                    }else if(end_column-1&&visited[end_row][end_column+1]==false&&Dist[end_row][end_column+1]<=B-1){
+                    }else if(end_column!=column-1&&visited[end_row][end_column+1]==false&&Dist[end_row][end_column+1]<=B-1){
                             visited[end_row][end_column+1] = true;
                             visited_num += 1;
                             end_column = end_column + 1;
@@ -198,12 +197,22 @@ int main()
                 }
             }
         }
+
+        string output;
+        output = output + argv[1] + "/final.path";
+        ofstream fout(output);
+
         vector<pair<int, int> >::iterator it;
-        cout<<AnsPath.size()<<endl;
+        fout<<AnsPath.size()<<endl;
         for(it=AnsPath.begin();it!=AnsPath.end();it++){
-            cout<<it->first<<' '<<it->second<<endl;
+            fout<<it->first<<' '<<it->second<<endl;
         }
+        fout.close();
     }else{
-        cout<<"no way to clean all floor";
+        string output;
+        output = output + argv[1] + "/final.path";
+        ofstream fout(output);
+        fout<<"No way to clean all or no need to move."<<endl;
+        fout.close();
     }
 }
